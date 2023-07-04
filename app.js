@@ -44,7 +44,7 @@ const defaultItems = [todo_1, todo_2, todo_3];
 //   console.log(error);
 // });
 
-const workItems = [];
+
 app.get("/favicon.ico", (req, res) => res.status(204));
 app.get("/", function(req, res) {
   reqParams = "";
@@ -151,5 +151,5 @@ app.get("/about", function(req, res){
 });
 
 app.listen( 3000 || process.env.PORT , function() {
-  console.log("Server started on port "+ 3000 || process.env.PORT);
+  console.log("Server started on port "+  process.env.PORT || 3000);
 });
