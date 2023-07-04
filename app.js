@@ -26,6 +26,7 @@ const itemSchema = new mongoose.Schema({
 
 const Item = mongoose.model('Item', itemSchema);
 var customeList= null;
+var reqParams = "";
 const todo_1 = new Item({
   name: 'Make food'
 });
@@ -46,6 +47,7 @@ const defaultItems = [todo_1, todo_2, todo_3];
 const workItems = [];
 app.get("/favicon.ico", (req, res) => res.status(204));
 app.get("/", function(req, res) {
+  reqParams = "";
   
 const day = date.getDate();
 Item.find().then(function(items) {
@@ -65,12 +67,17 @@ Item.find().then(function(items) {
 });
 });
 app.post("/delete-item", function(req, res){
-  
+
   console.log(req.body);
   const checkedItemId = req.body.check;
-  Item.findByIdAndRemove(checkedItemId).then(function() {
+  let model = Item;
+  if (reqParams) {
+    // If reqParams is set, use customList model
+    model = mongoose.model(reqParams + "_list_item", itemSchema);
+  }
+  model.findByIdAndRemove(checkedItemId).then(function() {
     console.log('delete success');
-    res.redirect("/");
+    res.redirect(req.headers.referer);
   }).catch(function(error) {
     console.log(error);
   });
@@ -82,7 +89,7 @@ app.post("/delete-item", function(req, res){
 app.post("/", function(req, res){
 
   const item = req.body.newItem;
-
+  
 
     const new_todo = new Item({
       name: item
@@ -100,8 +107,9 @@ app.post("/", function(req, res){
 
 app.post("/:list", function(req, res){
   const item = req.body.newItem;
+  reqParams = req.params.list;
 
-
+  
   const new_todo = new customeList({
     name: item
   });
@@ -117,8 +125,8 @@ app.post("/:list", function(req, res){
 
 app.get("/:list", function(req,res){
   console.log(req.params.list);
-  
-  customeList = mongoose.model(req.params.list+"_list_item", itemSchema);
+  reqParams = req.params.list;
+  customeList = mongoose.model(reqParams+"_list_item", itemSchema);
   const day = date.getDate();
   customeList.find().then(function(items) {
   if (items.length === 0) {
